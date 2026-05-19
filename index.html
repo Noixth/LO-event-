@@ -463,7 +463,7 @@ function render() {
           const pc = ((d-0.5)/days*100).toFixed(2);
           const dtype = DOT_TYPES[dt.type];
           dotsHTML += `<div class="dot" style="left:${pc}%;background:${dtype.color}" title="${dtype.label}: ${d} ${TH_MONTHS[m-1]}" onclick="showModal(${e.id})"></div>`;
-          dotsHTML += `<div class="dot-label" style="left:${pc}%;top:${di===0?'2px':'20px'};transform:translateX(-50%);text-align:center">${dt.type==='announce'?'ประกาศ':'กิจกรรม'}</div>`;
+          dotsHTML += `<div class="dot-label" style="left:${pc}%;top:${di===0?'2px':'22px'};transform:translateX(-50%);text-align:center">${dt.type==='announce'?'ประกาศ':'กิจกรรม'}</div>`;
         }
       });
     }
