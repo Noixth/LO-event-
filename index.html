@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>หลิง & ออม – กิจกรรมแบรนด์</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #f7f6f2;
+    --card-bg:   #ffffff;
+    --text:      #1a1a1a;
+    --text-2:    #6b6b6b;
+    --text-3:    #a0a0a0;
+    --border:    rgba(0,0,0,0.08);
+    --border-2:  rgba(0,0,0,0.14);
+    --radius:    10px;
+    --shadow:    0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+  header p {
+    font-size: 13px;
+    color: var(--text-2);
+    margin-top: 4px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 0.5px solid var(--border);
+    padding: 16px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .top-bar h2 { font-size: 16px; font-weight: 600; }
+  .nav-btn {
+    background: none;
+    border: 0.5px solid var(--border-2);
+    border-radius: 8px;
+    padding: 5px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text);
+    transition: background .15s;
+  }
+  .nav-btn:hover { background: var(--bg); }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 0.5px solid var(--border);
+    font-size: 11px;
+    color: var(--text-2);
+  }
+  .legend-section { display: flex; align-items: center; gap: 10px; }
+  .legend-label { color: var(--text-3); font-size: 10px; }
+  .li { display: flex; align-items: center; gap: 4px; }
+  .ls { width: 22px; height: 8px; border-radius: 2px; }
+  .ld { width: 10px; height: 10px; border-radius: 50%; border: 2px solid currentColor; flex-shrink: 0; }
+
+  .cal { overflow-x: auto; }
+  .cal-inner { min-width: 560px; }
+
+  .header-row {
+    display: flex;
+    border-bottom: 0.5px solid var(--border-2);
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+  }
+  .label-col {
+    width: 100px;
+    flex-shrink: 0;
+    font-size: 10px;
+    color: var(--text-3);
+    padding: 0 6px;
+  }
+  .days-header { flex: 1; display: grid; }
+  .day-head {
+    font-size: 10px;
+    color: var(--text-3);
+    text-align: center;
+    padding: 2px 0;
+    border-left: 0.5px solid var(--border);
+  }
+  .day-head.sun { color: #D85A30; }
+  .day-head.sat { color: #378ADD; }
+
+  .rows-area { display: flex; flex-direction: column; gap: 3px; }
+  .row { display: flex; align-items: center; min-height: 38px; }
+  .row-label {
+    width: 100px;
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 0 6px;
+    color: var(--text-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .row-grid { flex: 1; position: relative; height: 38px; }
+
+  .grid-lines {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    pointer-events: none;
+  }
+  .grid-line { border-left: 0.5px solid var(--border); height: 100%; }
+  .grid-line.sun { border-left-color: rgba(216,90,48,0.18); }
+  .grid-line.sat { border-left-color: rgba(55,138,221,0.15); }
+
+  .bar {
+    position: absolute;
+    top: 5px;
+    height: 28px;
+    border-radius: 4px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: filter .15s, transform .1s;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+  }
+  .bar:hover { filter: brightness(0.93); transform: scaleY(1.04); z-index: 3; }
+  .bar-top { flex: 1; }
+  .bar-bot { height: 7px; flex-shrink: 0; }
+  .bar-label {
+    position: absolute;
+    top: 0;
+    left: 5px;
+    right: 5px;
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 21px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+    z-index: 4;
+    font-family: 'Sarabun', sans-serif;
+  }
+
+  .dot {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 5;
+    border: 2px solid #fff;
+    transition: transform .15s;
+  }
+  .dot:hover { transform: translate(-50%, -50%) scale(1.35); }
+  .dot-label {
+    position: absolute;
+    font-size: 8px;
+    white-space: nowrap;
+    z-index: 6;
+    pointer-events: none;
+    color: var(--text-3);
+  }
+
+  .today-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1.5px;
+    background: rgba(127,119,221,0.35);
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 20px;
+    animation: fadeIn .18s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+  .modal-box {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    max-width: 320px;
+    width: 100%;
+    position: relative;
+    animation: slideUp .18s ease;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+  }
+  @keyframes slideUp { from { transform: translateY(10px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+  .mc {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--text-3);
+    line-height: 1;
+    transition: color .15s;
+  }
+  .mc:hover { color: var(--text); }
+  .m-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .m-who {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    margin-bottom: 6px;
+    margin-left: 5px;
+  }
+  .m-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    line-height: 1.4;
+    padding-right: 20px;
+  }
+  .m-events { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .m-evt { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; }
+  .m-evt-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .m-evt-type { font-weight: 600; display: block; }
+  .m-evt-date { color: var(--text-2); }
+  .m-detail {
+    font-size: 12px;
+    color: var(--text-2);
+    line-height: 1.65;
+    border-top: 0.5px solid var(--border-2);
+    padding-top: 10px;
+  }
+  .color-strip { height: 5px; border-radius: 3px; margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>หลิง & ออม – กิจกรรมลุ้นผู้โชคดี</h1>
+  <p>ปฏิทินกิจกรรมร่วมแบรนด์</p>
+</header>
+
+<div class="card">
+  <div class="top-bar">
+    <button class="nav-btn" onclick="changeMonth(-1)">‹ ก่อนหน้า</button>
+    <h2 id="month-label"></h2>
+    <button class="nav-btn" onclick="changeMonth(1)">ถัดไป ›</button>
+  </div>
+
+  <div class="legend">
+    <span class="legend-label">แบรนด์</span>
+    <div class="legend-section">
+      <div class="li"><div class="ls" style="background:#7F77DD"></div>Muse</div>
+      <div class="li"><div class="ls" style="background:#D85A30"></div>Nova</div>
+      <div class="li"><div class="ls" style="background:#1D9E75"></div>Bloom</div>
+      <div class="li"><div class="ls" style="background:#378ADD"></div>Vita</div>
+    </div>
+    <span style="width:1px;background:var(--border-2);height:12px;align-self:center"></span>
+    <span class="legend-label">ศิลปิน</span>
+    <div class="legend-section">
+      <div class="li"><div class="ls" style="background:#3B6D11"></div>หลิง</div>
+      <div class="li"><div class="ls" style="background:#D4537E"></div>ออม</div>
+      <div class="li"><div class="ls" style="background:#534AB7"></div>หลิง+ออม</div>
+    </div>
+    <span style="width:1px;background:var(--border-2);height:12px;align-self:center"></span>
+    <span class="legend-label">ไทม์ไลน์</span>
+    <div class="legend-section">
+      <div class="li"><div class="ld" style="border-color:#E24B4A;color:#E24B4A"></div>ประกาศผล</div>
+      <div class="li"><div class="ld" style="border-color:#BA7517;color:#BA7517"></div>ร่วมกิจกรรม</div>
+    </div>
+  </div>
+
+  <div class="cal"><div class="cal-inner" id="cal-inner"></div></div>
+</div>
+
+<div id="modal-mount"></div>
+
+<script>
+/* =============================================
+   DATA — แก้ไขข้อมูลตรงนี้
+   =============================================
+
+   BRANDS: เพิ่ม/แก้ไขแบรนด์
+     key   : ชื่อย่อ (ใช้ใน EVENTS)
+     name  : ชื่อเต็ม
+     color : สีแบรนด์ (hex)
+     text  : สีตัวอักษรบนแถบ (ควรเข้ม)
+
+   WHO: ศิลปิน
+     key   : ใช้ใน EVENTS (ling / om / both)
+     name  : ชื่อที่แสดง
+     color : สีแถบล่าง + badge
+     bg    : พื้นหลัง badge
+
+   EVENTS: กิจกรรม
+     brand  : key ของ BRANDS
+     who    : key ของ WHO
+     range  : [[ปี,เดือน,วัน], [ปี,เดือน,วัน]] — ช่วงร่วมกิจกรรม
+     title  : ชื่อกิจกรรม
+     detail : รายละเอียด (แสดงใน popup)
+     dots   : วันสำคัญเพิ่มเติม (ไม่บังคับ)
+       - type : 'announce' (ประกาศผล) | 'activity' (ร่วมกิจกรรม)
+       - date : [ปี,เดือน,วัน]
+============================================= */
+
+const BRANDS = {
+  muse:  { name: 'Muse Brand',  color: '#7F77DD', text: '#3C3489' },
+  nova:  { name: 'Nova Brand',  color: '#D85A30', text: '#712B13' },
+  bloom: { name: 'Bloom Brand', color: '#1D9E75', text: '#085041' },
+  vita:  { name: 'Vita Brand',  color: '#378ADD', text: '#0C447C' },
+};
+
+const WHO = {
+  ling: { name: 'หลิง',     color: '#3B6D11', bg: '#EAF3DE' },
+  om:   { name: 'ออม',      color: '#D4537E', bg: '#FBEAF0' },
+  both: { name: 'หลิง+ออม', color: '#534AB7', bg: '#EEEDFE' },
+};
+
+const DOT_TYPES = {
+  announce: { label: 'ประกาศผล',   color: '#E24B4A' },
+  activity: { label: 'ร่วมกิจกรรม', color: '#BA7517' },
+};
+
+const EVENTS = [
+  {
+    id: 1,
+    brand: 'muse', who: 'ling',
+    range: [[2025,4,3],[2025,4,7]],
+    title: 'Muse x หลิง – Lucky Draw',
+    detail: 'ร่วมกิจกรรมลุ้นรับของรางวัลสุดพิเศษจาก Muse Brand กับหลิง ลงทะเบียนรับสิทธิ์ผ่านแอปและ LINE OA',
+    dots: [
+      { type: 'announce', date: [2025,4,20] },
+    ],
+  },
+  {
+    id: 2,
+    brand: 'nova', who: 'om',
+    range: [[2025,4,5],[2025,4,12]],
+    title: 'Nova x ออม – ลุ้นโชค Summer',
+    detail: 'ซื้อสินค้า Nova Brand ครบ 500 บาท รับสิทธิ์ลุ้นเจอออมในงาน Summer Meet & Greet',
+    dots: [
+      { type: 'announce', date: [2025,4,25] },
+      { type: 'activity',  date: [2025,5,15] },
+    ],
+  },
+  {
+    id: 3,
+    brand: 'bloom', who: 'both',
+    range: [[2025,4,10],[2025,4,18]],
+    title: 'Bloom x หลิง+ออม – Double Lucky',
+    detail: 'กิจกรรมพิเศษจาก Bloom Brand ร่วมกับทั้งหลิงและออม ลุ้นรับรางวัลคู่สุดเอ็กซ์คลูซีฟ',
+    dots: [
+      { type: 'announce', date: [2025,4,28] },
+      { type: 'activity',  date: [2025,5,10] },
+    ],
+  },
+  {
+    id: 4,
+    brand: 'vita', who: 'ling',
+    range: [[2025,4,15],[2025,4,20]],
+    title: 'Vita x หลิง – Wellness Week',
+    detail: 'Vita Brand ชวนร่วมกิจกรรม Wellness สุขภาพดีกับหลิง ลุ้นรับผลิตภัณฑ์มูลค่ากว่า 5,000 บาท',
+    dots: [
+      { type: 'announce', date: [2025,4,26] },
+    ],
+  },
+  {
+    id: 5,
+    brand: 'nova', who: 'both',
+    range: [[2025,4,22],[2025,4,28]],
+    title: 'Nova x หลิง+ออม – Fan Special',
+    detail: 'โอกาสพิเศษ! ร่วมกิจกรรมลุ้นรับบัตรพบหลิงและออม ในงาน Nova Fan Festival',
+    dots: [
+      { type: 'announce', date: [2025,5,5] },
+      { type: 'activity',  date: [2025,5,20] },
+    ],
+  },
+  {
+    id: 6,
+    brand: 'muse', who: 'om',
+    range: [[2025,4,25],[2025,4,30]],
+    title: 'Muse x ออม – Collection Launch',
+    detail: 'เปิดตัวคอลเลกชันใหม่ Muse x ออม ซื้อของรุ่น Limited ลุ้นรับลายเซ็นต์ออมพร้อมของที่ระลึก',
+    dots: [
+      { type: 'announce', date: [2025,5,8] },
+      { type: 'activity',  date: [2025,5,18] },
+    ],
+  },
+];
+
+/* =============================================
+   ENGINE — ไม่ต้องแก้ไขส่วนนี้
+============================================= */
+
+const TH_MONTHS = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+let cur = new Date(2025, 3, 1);
+
+function toD(a) { return new Date(a[0], a[1]-1, a[2]); }
+function daysInMonth(y, m) { return new Date(y, m, 0).getDate(); }
+function fmt(d) { return `${d.getDate()} ${TH_MONTHS[d.getMonth()]} ${d.getFullYear()+543}`; }
+
+function render() {
+  const y = cur.getFullYear(), m = cur.getMonth()+1;
+  const days = daysInMonth(y, m);
+  document.getElementById('month-label').textContent = TH_MONTHS[m-1] + ' ' + (y+543);
+
+  const today = new Date();
+  const todayCol = (today.getFullYear()===y && today.getMonth()+1===m) ? today.getDate() : null;
+
+  const ms = new Date(y,m-1,1), me = new Date(y,m-1,days);
+
+  const eventsThisMonth = EVENTS.filter(e => {
+    const rs = toD(e.range[0]), re = toD(e.range[1]);
+    const hasDots = e.dots && e.dots.some(d => { const dd = toD(d.date); return dd >= ms && dd <= me; });
+    return (re >= ms && rs <= me) || hasDots;
+  });
+
+  let headDays = '';
+  for (let d = 1; d <= days; d++) {
+    const dow = new Date(y, m-1, d).getDay();
+    const cls = dow === 0 ? ' sun' : (dow === 6 ? ' sat' : '');
+    headDays += `<div class="day-head${cls}" style="grid-column:${d}">${d}</div>`;
+  }
+
+  const rows = eventsThisMonth.map(e => {
+    const b = BRANDS[e.brand], w = WHO[e.who];
+    const rs = toD(e.range[0]), re = toD(e.range[1]);
+
+    let barHTML = '';
+    if (re >= ms && rs <= me) {
+      const colStart = Math.max(rs < ms ? 1 : rs.getDate(), 1);
+      const colEnd   = Math.min(re > me ? days : re.getDate(), days);
+      const spanDays = colEnd - colStart + 1;
+      const pl = ((colStart-1)/days*100).toFixed(2);
+      const pw = (spanDays/days*100).toFixed(2);
+      const lr = rs >= ms ? '4px' : '0';
+      const rr = re <= me ? '4px' : '0';
+      barHTML = `<div class="bar" style="left:${pl}%;width:${pw}%;border-radius:${lr} ${rr} ${rr} ${lr}" onclick="showModal(${e.id})">
+        <div class="bar-top" style="background:${b.color}22;border:1px solid ${b.color}55;border-bottom:none;border-radius:inherit"></div>
+        <div class="bar-bot" style="background:${w.color}"></div>
+        <div class="bar-label" style="color:${b.text}">${e.title.split('–')[0].trim()}</div>
+      </div>`;
+    }
+
+    let dotsHTML = '';
+    if (e.dots) {
+      e.dots.forEach((dt, di) => {
+        const dd = toD(dt.date);
+        if (dd.getFullYear()===y && dd.getMonth()+1===m) {
+          const d = dd.getDate();
+          const pc = ((d-0.5)/days*100).toFixed(2);
+          const dtype = DOT_TYPES[dt.type];
+          dotsHTML += `<div class="dot" style="left:${pc}%;background:${dtype.color}" title="${dtype.label}: ${d} ${TH_MONTHS[m-1]}" onclick="showModal(${e.id})"></div>`;
+          dotsHTML += `<div class="dot-label" style="left:${(parseFloat(pc)+1.5).toFixed(2)}%;top:${di===0?'2px':'16px'}">${dt.type==='announce'?'ประกาศ':'กิจกรรม'}</div>`;
+        }
+      });
+    }
+
+    let todayHTML = '';
+    if (todayCol) {
+      todayHTML = `<div class="today-line" style="left:${((todayCol-0.5)/days*100).toFixed(2)}%"></div>`;
+    }
+
+    let gridLines = '';
+    for (let d = 1; d <= days; d++) {
+      const dow = new Date(y, m-1, d).getDay();
+      const cls = dow === 0 ? ' sun' : (dow === 6 ? ' sat' : '');
+      gridLines += `<div class="grid-line${cls}" style="grid-column:${d}"></div>`;
+    }
+
+    return `<div class="row">
+      <div class="row-label" title="${e.title}">${b.name}</div>
+      <div class="row-grid">
+        <div class="grid-lines" style="display:grid;grid-template-columns:repeat(${days},1fr)">${gridLines}</div>
+        ${todayHTML}${barHTML}${dotsHTML}
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('cal-inner').innerHTML = `
+    <div class="header-row">
+      <div class="label-col">กิจกรรม</div>
+      <div class="days-header" style="grid-template-columns:repeat(${days},1fr)">${headDays}</div>
+    </div>
+    <div class="rows-area">${rows.join('')}</div>`;
+}
+
+function showModal(id) {
+  const e = EVENTS.find(x => x.id === id);
+  const b = BRANDS[e.brand], w = WHO[e.who];
+  const rs = toD(e.range[0]), re = toD(e.range[1]);
+
+  let dotsHTML = '';
+  if (e.dots) {
+    e.dots.forEach(dt => {
+      const dd = toD(dt.date);
+      const dtype = DOT_TYPES[dt.type];
+      dotsHTML += `<div class="m-evt">
+        <div class="m-evt-dot" style="background:${dtype.color}"></div>
+        <div><span class="m-evt-type">${dtype.label}</span><span class="m-evt-date">${fmt(dd)}</span></div>
+      </div>`;
+    });
+  }
+
+  document.getElementById('modal-mount').innerHTML = `
+  <div class="modal-overlay" id="mover" onclick="if(event.target===this)closeModal()">
+    <div class="modal-box">
+      <button class="mc" onclick="closeModal()">✕</button>
+      <div>
+        <span class="m-brand" style="background:${b.color}22;color:${b.text}">${b.name}</span>
+        <span class="m-who" style="background:${w.bg};color:${w.color}">${w.name}</span>
+      </div>
+      <div class="m-title">${e.title}</div>
+      <div class="m-events">
+        <div class="m-evt">
+          <div class="m-evt-dot" style="background:${b.color}"></div>
+          <div><span class="m-evt-type">ช่วงร่วมกิจกรรม</span><span class="m-evt-date">${fmt(rs)} – ${fmt(re)}</span></div>
+        </div>
+        ${dotsHTML}
+      </div>
+      <div class="m-detail">${e.detail}</div>
+      <div class="color-strip" style="background:linear-gradient(90deg,${b.color} 80%,${w.color} 80%)"></div>
+    </div>
+  </div>`;
+}
+
+function closeModal() { document.getElementById('modal-mount').innerHTML = ''; }
+
+function changeMonth(d) { cur = new Date(cur.getFullYear(), cur.getMonth()+d, 1); render(); }
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+render();
+</script>
+</body>
+</html>
